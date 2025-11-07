@@ -3,3 +3,4 @@ pub mod protocol;
 pub mod game;
 pub mod util;
 pub mod eval;
+pub mod minimax;

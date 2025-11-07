@@ -73,9 +73,20 @@ impl State {
             .filter(move |(_, f)| f.penguin() == Some(team))
     }
 
+     /// The current team's fields.
+    pub fn team_pieces(&self, team:Team) -> impl Iterator<Item=(Vec2<Doubled>, Field)> {
+        self.board.fields()
+            .filter(move |(_, f)| f.penguin() == Some(team))
+    }
+
     /// Whether the current team has placed all of its penguins.
     pub fn penguins_placed(&self) -> bool {
         self.current_pieces().count() == PENGUINS_PER_TEAM
+    }
+
+    /// Whether the current team has placed all of its penguins.
+    pub fn current_team_penguins_placed(&self, myTeam:Team) -> bool {
+        self.team_pieces(myTeam).count() == PENGUINS_PER_TEAM
     }
 
     /// Whether the game is over.
@@ -100,6 +111,20 @@ impl State {
     pub fn possible_moves(&self) -> Vec<Move> {
         if self.penguins_placed() {
             self.current_pieces()
+                .flat_map(|(c, _)| self.board.possible_moves_from(c))
+                .collect()
+        } else {
+            self.board.fields()
+                .filter(|(_, f)| f.fish() == 1)
+                .map(|(c, _)| Move::placing(c))
+                .collect()
+        }
+    }
+
+    /// Fetches the possible moves for a Team
+    pub fn possible_moves_for_team(&self, myteam:Team) -> Vec<Move> {
+        if self.current_team_penguins_placed(myteam) {
+            self.team_pieces(myteam)
                 .flat_map(|(c, _)| self.board.possible_moves_from(c))
                 .collect()
         } else {
