@@ -1,3 +1,5 @@
+use core::f32;
+
 use log::{info, debug};
 use rand::seq::SliceRandom;
 
@@ -13,7 +15,7 @@ impl GameClientDelegate for OwnLogic {
 
     fn request_move(&mut self, state: &State, _my_team: Team) -> Move {
         info!("Requested move");
-        let (my_move, _) = minimax(state, 2, _my_team);
+        let (my_move, _) = minimax(state, 3, _my_team, f32::MIN, f32::MAX);
         let chosen_move = my_move.unwrap();
         info!("Chose move {}", chosen_move);
         chosen_move

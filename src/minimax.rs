@@ -1,6 +1,6 @@
 use crate::{eval::evaluate_state, game::{Move, State, Team}};
 
-pub fn minimax(state: &State, depth:i32, maxi_player:Team, ) -> (Option<Move>, f32) {
+pub fn minimax(state: &State, depth:i32, maxi_player:Team, mut alpha:f32, mut beta:f32) -> (Option<Move>, f32) {
     if state.is_over() {
         if state.winner().is_none() {
             return (None, 0.0);
@@ -22,10 +22,14 @@ pub fn minimax(state: &State, depth:i32, maxi_player:Team, ) -> (Option<Move>, f
         for mv in state.possible_moves() {
             let mut state_copy = state.clone();
             state_copy.perform(mv);
-            let (_, value) = minimax(&state_copy, depth-1, maxi_player);
+            let (_, value) = minimax(&state_copy, depth-1, maxi_player, alpha, beta);
             if value > max_value {
                 max_value = value;
                 best_move = mv;
+            }
+            alpha = f32::max(alpha, value);
+            if alpha >= beta {
+                break;
             }
         }
         return (Some(best_move), max_value)
@@ -35,10 +39,14 @@ pub fn minimax(state: &State, depth:i32, maxi_player:Team, ) -> (Option<Move>, f
         for mv in state.possible_moves() {
             let mut state_copy = state.clone();
             state_copy.perform(mv);
-            let (_, value) = minimax(&state_copy, depth-1, maxi_player);
+            let (_, value) = minimax(&state_copy, depth-1, maxi_player, alpha, beta);
             if value < min_value {
                 min_value = value;
                 best_move = mv;
+            }
+            beta = f32::min(beta, value);
+            if alpha >= beta {
+                break;
             }
         }
         return (Some(best_move), min_value)
